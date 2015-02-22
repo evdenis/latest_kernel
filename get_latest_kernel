@@ -11,6 +11,7 @@ use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through)
 use lib::abs 'lib';
 use Linux::Kernel::Get::Latest;
 use Module::Loader;
+use Try::Tiny;
 
 BEGIN {
    eval {
@@ -87,7 +88,11 @@ my $file = get_latest_kernel($ua, $config{working_dir}, $kernels);
 if ($file) {
    my %opts = (file => $file);
    foreach (@plugins) {
-      $_->action(\%opts)
+      try { # TODO:
+         $_->action(\%opts)
+      } catch {
+         last
+      }
    }
 }
 
