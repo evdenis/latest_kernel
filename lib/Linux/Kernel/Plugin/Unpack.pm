@@ -33,7 +33,19 @@ sub priority
 
 sub action
 {
-   ...
+   my ($self, $opts) = @_;
+
+   my $pid = fork();
+   die "can't fork: $!"
+      unless defined $pid;
+
+   unless ($pid) {
+      print "UNPACKING $opts->{file} to directory $self->{dir}\n";
+      close STDIN;
+      close STDOUT;
+      close STDERR;
+      exec('tar', 'xf', $opts->{file}, '-C', $self->{dir});
+   }
 }
 
 
