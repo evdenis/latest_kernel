@@ -21,7 +21,7 @@ sub process_options
 
 sub priority
 {
-   10
+   30
 }
 
 sub action
