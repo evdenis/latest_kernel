@@ -7,9 +7,10 @@ use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
 use POSIX qw/setsid/;
-use Getopt::Long qw(:config gnu_compat no_bundling no_permute no_getopt_compat);
+use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
 use lib::abs 'lib';
 use Linux::Kernel::Get::Latest;
+use Module::Loader;
 
 BEGIN {
    eval {
@@ -22,15 +23,33 @@ my %config;
 $config{working_dir} = '.';
 $config{daemon} = 0;
 $config{minutes} = 10;
+$config{plugins} = [];
 
 GetOptions(
-   'daemon|d!'   => \$config{daemon},
-   'minutes|m=i' => \$config{minutes},
+   'daemon|d!'       => \$config{daemon},
+   'minutes|m=i'     => \$config{minutes},
+   'load-plugins=s@' => \$config{plugins},
 ) or die "Wrong command line arguments.\n";
+$config{plugins} = [ split(/,/, join(',', @{$config{plugins}})) ];
+
+my $loader  = Module::Loader->new(max_depth => 1);
+my @plugins;
+my %pmap = map {lc(substr($_, rindex($_, ':') + 1)), $_} $loader->search('Linux::Kernel::Plugin');
+foreach my $p (@{$config{plugins}}) {
+   if (any {$p eq $_} keys %pmap) {
+      ### LOADING PLUGIN: $p
+      $loader->load($pmap{$p});
+      push @plugins, $pmap{$p}->process_options(\%config);
+   } else {
+      die "There is no plugin: $p\n"
+   }
+}
+
+@plugins = sort {$a->priority <=> $b->priority} @plugins;
 
 if (@ARGV) {
-   if ($#ARGV==0) {
-      $config{working_dir} = $ARGV[0];
+   if ($#ARGV == 0 && (index($ARGV[0], '-') == -1)) {
+      $config{working_dir} = $ARGV[0]
    } else {
       die "Wrong command line arguments.\n"
    }
@@ -39,6 +58,7 @@ if (@ARGV) {
 unless (-d $config{working_dir} && -r _ && -x _) {
    die "Can't open directory $config{working_dir}\n"
 }
+
 
 ### CONFIGURATION: %config
 
@@ -63,7 +83,13 @@ if ($config{daemon}) {
 my $ua = Mojo::UserAgent->new(max_redirects => 3);
 
 CHECK:
-get_latest_kernel($ua, $config{working_dir}, $kernels);
+my $file = get_latest_kernel($ua, $config{working_dir}, $kernels);
+if ($file) {
+   my %opts = {file => $file};
+   foreach (@plugins) {
+      $_->action(\%opts)
+   }
+}
 
 if ($config{daemon}) {
    sleep $config{minutes} * 60;
