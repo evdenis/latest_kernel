@@ -51,16 +51,17 @@ sub get_latest_kernel
 
    unless (any { $name eq $_ } @$available) {
       print "DOWNLOADING: $name\n";
+      my $file = catfile($dir, $name);
       $ua->get(KERNEL_PAGE . $latest_link)
          ->res
          ->content
          ->asset
-         ->move_to(catfile($dir, $name));
+         ->move_to($file);
       push $available, $name;
-      return 1
+      return $file
    }
 
-   0
+   undef
 }
 
 1;
