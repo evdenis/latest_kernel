@@ -86,7 +86,7 @@ unless (any { $name eq $_ } @kernels) {
       ->res
       ->content
       ->asset
-      ->move_to($name);
+      ->move_to($config{working_dir} . '/' . $name);
    push @kernels, $name;
 }
 
