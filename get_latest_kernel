@@ -29,9 +29,14 @@ $config{plugins} = [];
 GetOptions(
    'daemon|d!'       => \$config{daemon},
    'minutes|m=i'     => \$config{minutes},
+   'dir=s'           => \$config{working_dir},
    'load-plugins=s@' => \$config{plugins},
 ) or die "Wrong command line arguments.\n";
 $config{plugins} = [ split(/,/, join(',', @{$config{plugins}})) ];
+
+unless (-d $config{working_dir} && -r _ && -x _) {
+   die "Can't open directory $config{working_dir}\n"
+}
 
 my $loader  = Module::Loader->new(max_depth => 1);
 my @plugins;
@@ -49,15 +54,7 @@ foreach my $p (@{$config{plugins}}) {
 @plugins = sort {$a->priority <=> $b->priority} @plugins;
 
 if (@ARGV) {
-   if ($#ARGV == 0 && (index($ARGV[0], '-') == -1)) {
-      $config{working_dir} = $ARGV[0]
-   } else {
-      die "Wrong command line arguments.\n"
-   }
-}
-
-unless (-d $config{working_dir} && -r _ && -x _) {
-   die "Can't open directory $config{working_dir}\n"
+   die "Unknown command line arguments: " . join(', ', @ARGV) . "\n"
 }
 
 

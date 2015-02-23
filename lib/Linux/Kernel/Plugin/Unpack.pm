@@ -15,13 +15,20 @@ sub process_options
       'plugin-unpack-dir=s' => \$dir,
    ) or die("Error in command line arguments\n");
 
-   die "Option --plugin-unpack-dir should be provided.\n"
-      unless $dir;
+   unless ($dir) {
+      if (exists $config->{working_dir}) {
+         $dir = $config->{working_dir};
+         goto CHECKED;
+      } else {
+         die "Option --plugin-unpack-dir should be provided.\n"
+      }
+   }
 
    unless (-d $dir && -r _) {
       die "Can't access $dir.\n"
    }
 
+CHECKED:
    $config->{'unpack-dir'} = $dir;
 
    bless { dir => $dir }, $self

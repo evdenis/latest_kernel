@@ -38,13 +38,20 @@ sub process_options
       'plugin-download-dir=s' => \$dir,
    ) or die("Error in command line arguments\n");
 
-   die "Option --plugin-download-dir should be provided.\n"
-      unless $dir;
+   unless ($dir) {
+      if (exists $config->{working_dir}) {
+         $dir = $config->{working_dir};
+         goto CHECKED;
+      } else {
+         die "Option --plugin-download-dir should be provided.\n"
+      }
+   }
 
    unless (-d $dir && -r _ && -x _) {
       die "Can't access $dir.\n"
    }
 
+CHECKED:
    $config->{'download-dir'} = $dir;
 
    my $obj = bless { dir => $dir }, $self;
