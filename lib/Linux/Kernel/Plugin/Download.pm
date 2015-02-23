@@ -54,6 +54,9 @@ sub action
    return undef
       unless exists $opts->{link};
 
+   die "PLUGINS CONFLICT\n"
+      if exists $opts->{file};
+
    my $name = name_from_link($opts->{link});
 
    unless (any { $name eq $_ } @{$self->{downloaded}}) {

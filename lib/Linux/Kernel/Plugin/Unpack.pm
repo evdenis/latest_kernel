@@ -46,14 +46,20 @@ sub action
    return undef
       unless exists $opts->{file};
 
+   die "PLUGINS CONFLICT\n"
+      if exists $opts->{'kernel-dir'};
+
    print "UNPACKING $opts->{file} to directory $self->{dir}\n";
    system('tar', 'xf', $opts->{file}, '-C', $self->{dir}) == 0 or
       die "UNPACK FAIL\n";
    my $dir = $opts->{file} =~ s/\.tar\.(?:\w){2,3}\z//r;
    $dir = catdir $self->{dir}, $dir;
    if (-d $dir) {
-      $opts->{'kernel-dir'} = $dir
+      $opts->{'kernel-dir'} = $dir;
+      return $dir
    }
+
+   undef
 }
 
 
