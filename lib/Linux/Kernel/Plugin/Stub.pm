@@ -5,21 +5,8 @@ use strict;
 
 use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
 use File::Spec::Functions qw/catfile/;
+use Linux::Kernel qw/get_available_kernels/;
 
-
-sub _get_available_kernels
-{
-   my $self = $_[0];
-
-   my @kernels = do {
-      opendir ((my $fh), $self->{dir});
-      my @contents = readdir $fh;
-      closedir $fh;
-      grep { -f $_ && $_ =~ m/\Alinux-\d\.\d\d\.tar\.(?:\w){2,3}\z/ } @contents;
-   };
-
-   $self->{downloaded} = \@kernels;
-}
 
 sub process_options
 {
@@ -49,10 +36,7 @@ CHECKED:
    $config->{'stub-dir'} = $dir;
    $config->{'stub-times'} = $times;
 
-   my $obj = bless { dir => $dir, times => $times }, $self;
-   $obj->_get_available_kernels;
-
-   $obj
+   bless { dir => $dir, times => $times, downloaded => get_available_kernels($dir) }, $self;
 }
 
 sub priority

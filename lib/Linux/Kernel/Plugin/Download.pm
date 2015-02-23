@@ -8,23 +8,10 @@ use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
 use File::Spec::Functions qw/catfile/;
+use Linux::Kernel qw/get_available_kernels/;
 
 
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1073741824; # 1GB
-
-sub _get_available_kernels
-{
-   my $self = $_[0];
-
-   my @kernels = do {
-      opendir ((my $fh), $self->{dir});
-      my @contents = readdir $fh;
-      closedir $fh;
-      grep { -f $_ && $_ =~ m/\Alinux-\d\.\d\d\.tar\.(?:\w){2,3}\z/ } @contents;
-   };
-
-   $self->{downloaded} = \@kernels;
-}
 
 
 sub process_options
@@ -52,10 +39,7 @@ sub process_options
 CHECKED:
    $config->{'download-dir'} = $dir;
 
-   my $obj = bless { dir => $dir }, $self;
-   $obj->_get_available_kernels;
-
-   $obj
+   bless { dir => $dir, downloaded => get_available_kernels($dir) }, $self
 }
 
 sub priority
