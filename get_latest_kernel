@@ -51,7 +51,12 @@ foreach my $p (@{$config{plugins}}) {
    }
 }
 
-@plugins = sort {$a->priority <=> $b->priority} @plugins;
+@plugins = sort
+   {
+      die ("Can't use plugin " . (ref $a) . " and " . (ref $b) . " combined.\n")
+         if $a->priority == $b->priority;
+      $a->priority <=> $b->priority
+   } @plugins;
 
 if (@ARGV) {
    die "Unknown command line arguments: " . join(', ', @ARGV) . "\n"
