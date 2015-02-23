@@ -8,7 +8,7 @@ use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
 use File::Spec::Functions qw/catfile/;
-use Linux::Kernel qw/get_available_kernels/;
+use Linux::Kernel qw/get_available_kernels name_from_link/;
 
 
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1073741824; # 1GB
@@ -54,7 +54,7 @@ sub action
    return undef
       unless exists $opts->{link};
 
-   my $name = substr $opts->{link}, rindex($opts->{link}, '/') + 1;
+   my $name = name_from_link($opts->{link});
 
    unless (any { $name eq $_ } @{$self->{downloaded}}) {
       print "DOWNLOADING: $name\n";

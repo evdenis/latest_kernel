@@ -5,7 +5,7 @@ use strict;
 
 use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
 use File::Spec::Functions qw/catfile/;
-use Linux::Kernel qw/get_available_kernels/;
+use Linux::Kernel qw/get_available_kernels name_from_link/;
 
 
 sub process_options
@@ -54,7 +54,7 @@ sub action
    die "PLUGINS CONFLICT\n"
       if exists $opts->{file};
 
-   my $name = substr $opts->{link}, rindex($opts->{link}, '/') + 1;
+   my $name = name_from_link($opts->{link});
 
    if ($self->{times} > 0 || $self->{times} == -1) {
       my $file = catfile($self->{dir}, $name);

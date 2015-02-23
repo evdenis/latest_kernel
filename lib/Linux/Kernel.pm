@@ -5,7 +5,7 @@ use strict;
 
 use Exporter qw/import/;
 
-our @EXPORT_OK = qw/get_available_kernels/;
+our @EXPORT_OK = qw/get_available_kernels name_from_link/;
 
 use constant KERNEL_PAGE => 'https://www.kernel.org/';
 
@@ -22,6 +22,11 @@ sub get_available_kernels
    };
 
    \@kernels
+}
+
+sub name_from_link
+{
+   substr($_[0], rindex($_[0], '/') + 1)
 }
 
 
