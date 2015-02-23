@@ -9,10 +9,8 @@ use Mojo::DOM;
 use List::Util qw/any/;
 use File::Spec::Functions qw/catfile/;
 
-use constant KERNEL_PAGE => 'https://www.kernel.org/';
 
 $ENV{MOJO_MAX_MESSAGE_SIZE} = 1073741824; # 1GB
-
 
 sub _get_available_kernels
 {
@@ -77,7 +75,7 @@ sub action
    unless (any { $name eq $_ } @{$self->{downloaded}}) {
       print "DOWNLOADING: $name\n";
       my $file = catfile($self->{dir}, $name);
-      $opts->{ua}->get(KERNEL_PAGE . $opts->{link})
+      $opts->{ua}->get($opts->{link})
          ->res
          ->content
          ->asset

@@ -7,23 +7,25 @@ use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
 use File::Spec::Functions qw/catfile/;
+use Linux::Kernel;
 
 use Exporter qw/import/;
 
 our @EXPORT = qw/latest_kernel/;
 
-use constant KERNEL_PAGE => 'https://www.kernel.org/';
 
 sub latest_kernel
 {
    my ($ua) = @_;
 
-   $ua->get(KERNEL_PAGE)
-      ->res
-      ->dom
-      ->find('#latest_link > a:nth-child(1)')
-      ->map(attr => 'href')
-      ->join("\n")
+   my $link = $ua->get(Linux::Kernel::KERNEL_PAGE)
+                 ->res
+                 ->dom
+                 ->find('#latest_link > a:nth-child(1)')
+                 ->map(attr => 'href')
+                 ->join("\n");
+
+   Linux::Kernel::KERNEL_PAGE . $link
 }
 
 1;
