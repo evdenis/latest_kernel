@@ -3,6 +3,7 @@
 use warnings;
 use strict;
 
+use feature qw/switch/;
 use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
@@ -90,7 +91,8 @@ if ($link) {
       try { # TODO:
          $_->action(\%opts)
       } catch {
-         last
+         when (/PLUGINS CONFLICT/) { die $_ }
+         default { last }
       }
    }
 }
