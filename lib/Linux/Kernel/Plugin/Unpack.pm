@@ -36,6 +36,9 @@ sub action
 {
    my ($self, $opts) = @_;
 
+   return undef
+      unless exists $opts->{file};
+
    print "UNPACKING $opts->{file} to directory $self->{dir}\n";
    system('tar', 'xf', $opts->{file}, '-C', $self->{dir}) == 0 or
       die "UNPACK FAIL\n";
