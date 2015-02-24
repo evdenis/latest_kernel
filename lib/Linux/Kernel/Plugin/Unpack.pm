@@ -36,7 +36,7 @@ CHECKED:
 
 sub priority
 {
-   10
+   20
 }
 
 sub action
