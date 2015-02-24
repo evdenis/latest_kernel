@@ -91,7 +91,7 @@ if ($link) {
       try { # TODO:
          $_->action(\%opts)
       } catch {
-         when (/PLUGINS CONFLICT/) { die $_ }
+         when (/^FAIL:/) { die $_ }
          default { last }
       }
    }

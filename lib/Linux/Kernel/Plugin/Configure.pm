@@ -78,7 +78,7 @@ sub action
    return undef
       unless exists $opts->{'kernel-dir'};
 
-   die "PLUGINS CONFLICT\n"
+   die "FAIL: PLUGINS CONFLICT\n"
       if exists $opts->{'kernel-config'};
 
    my $date = (stat($self->{file}))[9];
