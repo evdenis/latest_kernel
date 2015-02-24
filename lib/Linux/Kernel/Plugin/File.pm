@@ -1,4 +1,4 @@
-package Linux::Kernel::Plugin::Stub;
+package Linux::Kernel::Plugin::File;
 
 use warnings;
 use strict;
