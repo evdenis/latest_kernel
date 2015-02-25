@@ -4,6 +4,7 @@ use warnings;
 use strict;
 
 use feature qw/switch/;
+no warnings 'experimental::smartmatch';
 use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
