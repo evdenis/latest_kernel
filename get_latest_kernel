@@ -76,7 +76,7 @@ if ($config{daemon}) {
       exit 0;
    }
    setsid();
-   open (STDIN,  '</dev/null');
+   open (STDIN,  '</dev/null'); # TODO: logging
    open (STDOUT, '>/dev/null');
    open (STDERR, '>&STDOUT');
 }
@@ -84,9 +84,12 @@ if ($config{daemon}) {
 
 my $ua = Mojo::UserAgent->new(max_redirects => 3);
 
+my $previous_link = '';
+my $link;
+
 CHECK:
-my $link = latest_kernel($ua);
-if ($link) {
+$link = latest_kernel($ua);
+if ($link && ($link ne $previous_link)) {
    my %opts = (link => $link, ua => $ua);
    foreach (@plugins) {
       try { # TODO:
@@ -96,6 +99,7 @@ if ($link) {
          default { last }
       }
    }
+   $previous_link = $link
 }
 
 if ($config{daemon}) {
