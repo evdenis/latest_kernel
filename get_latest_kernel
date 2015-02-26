@@ -47,7 +47,7 @@ foreach my $p (@{$config{plugins}}) {
    if (any {$p eq $_} keys %pmap) {
       ### LOADING PLUGIN: $p
       $loader->load($pmap{$p});
-      push @plugins, $pmap{$p}->process_options(\%config);
+      push @plugins, $pmap{$p}->process_options(\%config, \@plugins);
    } else {
       die "There is no plugin: $p\n"
    }
