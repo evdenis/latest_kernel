@@ -8,3 +8,4 @@ requires 'Mojo::DOM';
 requires 'List::Util';
 requires 'Module::Loader';
 requires 'Try::Tiny';
+requires 'Email::Stuffer';
