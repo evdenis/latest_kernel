@@ -1,0 +1,10 @@
+Plugins:
+   Email
+   Sms
+
+Documentation
+Dist::Zilla
+Tests
+CPAN
+
+
