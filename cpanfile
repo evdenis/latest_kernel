@@ -1,5 +1,3 @@
-requires 'Carp';
-requires 'Exporter';
 requires 'File::Slurp';
 requires 'File::Spec::Functions';
 
