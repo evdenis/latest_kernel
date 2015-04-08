@@ -10,10 +10,10 @@ sub process_options
 {
    my ($self, $config, $plugins) = @_;
    my $dir;
-   my $subj = "Linux kernel release";
+   my $subj = "Linux kernel release ###VERSION###";
    my $text = << "END";
 There is a new version of Linux kernel available at https://kernel.org
-LINK: ##LINK##
+LINK: ###LINK###
 END
    my $from;
    my $to;
@@ -30,7 +30,7 @@ END
    die "Option --plugin-email-to should be provided.\n"
       unless $to;
 
-   bless { priority => ($plugins->[-1]->priority + 1), # dynamic priority
+   bless { priority => ((@$plugins ? $plugins->[-1]->priority : 0) + 1), # dynamic priority
            from     => $from,
            to       => $to,
            subj     => $subj,
@@ -52,7 +52,9 @@ sub action
    my $subj = $self->{subj};
    my $text = $self->{text};
 
-   $text =~ s/##LINK##/$opts->{link}/g;
+   foreach ($subj, $text) {
+      s/###([^#]++)###/my $k = lc($1); exists $opts->{$k} ? $opts->{$k} : ${^MATCH}/gep
+   }
 
    Email::Stuffer
       ->text_body($text)
