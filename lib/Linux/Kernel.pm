@@ -5,7 +5,7 @@ use strict;
 
 use Exporter qw/import/;
 
-our @EXPORT_OK = qw/get_available_kernels name_from_link/;
+our @EXPORT_OK = qw/get_available_kernels name_from_link extract_version/;
 
 use constant KERNEL_PAGE => 'https://www.kernel.org/';
 
@@ -27,6 +27,16 @@ sub get_available_kernels
 sub name_from_link
 {
    substr($_[0], rindex($_[0], '/') + 1)
+}
+
+sub extract_version
+{
+   $_[0] =~ m/linux-(?<version>\d++\.\d++(\.\d++)?)\.tar/;
+   if (exists $+{version}) {
+      $+{version}
+   } else {
+      undef
+   }
 }
 
 
