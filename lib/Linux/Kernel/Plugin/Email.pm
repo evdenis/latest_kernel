@@ -60,7 +60,7 @@ sub action
       ->subject($subj)
       ->from($self->{from})
       ->to($self->{to})
-      ->send_or_die;
+      ->send;
 
    undef
 }
