@@ -8,6 +8,7 @@ no if $] >= 5.018, warnings => "experimental::smartmatch";
 use Mojo::UserAgent;
 use Mojo::DOM;
 use List::Util qw/any/;
+use File::Slurp qw/read_file/;
 use POSIX qw/setsid/;
 use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
 use lib::abs 'lib';
@@ -34,11 +35,28 @@ GetOptions(
    'minutes|m=i'     => \$config{minutes},
    'dir=s'           => \$config{working_dir},
    'load-plugins=s@' => \$config{plugins},
+   'config=s'        => \$config{config},
 ) or die "Wrong command line arguments.\n";
 $config{plugins} = [ split(/,/, join(',', @{$config{plugins}})) ];
 
 unless (-d $config{working_dir} && -r _ && -x _) {
    die "Can't open directory $config{working_dir}\n"
+}
+
+if (exists $config{config} && ! -r $config{config}) {
+   die "Can't read config file $config{config}\n"
+}
+
+#only plugin configuration options in config file
+#in the form of "option=value"
+foreach (read_file($config{config})) {
+   chomp;
+   if (/\A([\w-]++)=/) {
+      my $arg = "--plugin-" . $_;
+      unshift @ARGV, $arg
+   } else {
+      warn "Can't parse option '$_' in $config{config}. Skipping...\n"
+   }
 }
 
 my $loader  = Module::Loader->new(max_depth => 1);
