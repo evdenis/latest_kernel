@@ -9,7 +9,6 @@ use Email::Stuffer;
 sub process_options
 {
    my ($self, $config, $plugins) = @_;
-   my $dir;
    my $subj = "Linux kernel release ###VERSION###";
    my $text = << "END";
 There is a new version of Linux kernel available at https://kernel.org
