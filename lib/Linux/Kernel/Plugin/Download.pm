@@ -57,7 +57,10 @@ sub action
    die "FAIL: PLUGINS CONFLICT\n"
       if exists $opts->{file};
 
-   my $name = name_from_link($opts->{link});
+   my $name = exists $opts->{name} ?
+                        $opts->{name} :
+                        name_from_link($opts->{link});
+   $opts->{name} = $name;
 
    unless (any { $name eq $_ } @{$self->{downloaded}}) {
       print "DOWNLOADING: $name\n";

@@ -11,6 +11,7 @@ use List::Util qw/any/;
 use POSIX qw/setsid/;
 use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
 use lib::abs 'lib';
+use Linux::Kernel qw/name_from_link extract_version/;
 use Linux::Kernel::Latest;
 use Module::Loader;
 use Try::Tiny;
@@ -90,7 +91,7 @@ my $link;
 CHECK:
 $link = latest_kernel($ua);
 if ($link && ($link ne $previous_link)) {
-   my %opts = (link => $link, ua => $ua);
+   my %opts = (link => $link, name => name_from_link($link), version => extract_version($link), ua => $ua);
    foreach (@plugins) {
       try { # TODO:
          $_->action(\%opts)
