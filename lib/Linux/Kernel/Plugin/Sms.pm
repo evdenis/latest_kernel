@@ -53,24 +53,34 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{file};
+      unless exists $opts->{file} && exists $opts->{ua};
 
    my $text = $self->{text};
 
    $text =~ s/###([^#]++)###/my $k = lc($1); exists $opts->{$k} && length $opts->{$k} < 40? $opts->{$k} : $1/gep;
 
    #valid only for 10 minutes
-   my $token = $self->{ua}->get('http://sms.ru/auth/get_token')->res->body;
+   my $token = $opts->{ua}->get('https://sms.ru/auth/get_token')->res->body;
 
-   my $res = $self->{ua}->post(
-      'http://sms.ru/sms/send' =>
-         api_id => $opts->{api_id},
-         login  => $opts->{login},
-         sha512 => sha512_hex($opts->{password} . $token . $opts->{api_id}),
+   my $tx = $opts->{ua}->post(
+      'https://sms.ru/sms/send' => form => {
+         api_id => $self->{api_id},
+         login  => $self->{login},
+         sha512 => sha512_hex($self->{password} . $token . $self->{api_id}),
          token  => $token,
-         to     => $opts->{to},
+         to     => $self->{to},
          text   => $text
+      }
    );
+
+   if (my $res = $tx->success) {
+      print "SMS: " . $res->body . "\n"
+   } else {
+      my $err = $tx->error;
+      die "$err->{code} response: $err->{message}"
+         if $err->{code};
+      die "Connection error: $err->{message}";
+   }
 
    undef
 }
