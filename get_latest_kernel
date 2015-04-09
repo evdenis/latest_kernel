@@ -111,12 +111,15 @@ $link = latest_kernel($ua);
 if ($link && ($link ne $previous_link)) {
    my %opts = (link => $link, name => name_from_link($link), version => extract_version($link), ua => $ua);
    foreach (@plugins) {
+      my $last = 0;
+
       try { # TODO:
          $_->action(\%opts)
       } catch {
          when (/^FAIL:/) { die $_ }
-         default { last }
+         default { $last = 1 }
       }
+      last if $last;
    }
    $previous_link = $link
 }
