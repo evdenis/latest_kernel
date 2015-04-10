@@ -51,6 +51,8 @@ if (exists $config{config} && ! -r $config{config}) {
 #in the form of "option=value"
 foreach (read_file($config{config})) {
    chomp;
+   next
+      if /\A\h*+\Z/;
    if (/\A([\w-]++)=/) {
       my $arg = "--plugin-" . $_;
       unshift @ARGV, $arg
