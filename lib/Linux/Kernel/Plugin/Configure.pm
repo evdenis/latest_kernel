@@ -3,7 +3,7 @@ package Linux::Kernel::Plugin::Configure;
 use warnings;
 use strict;
 
-use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
+use Getopt::Long qw(:config gnu_compat permute no_getopt_compat pass_through);
 use List::Util qw/any/;
 use IO::Handle;
 use IO::Select;

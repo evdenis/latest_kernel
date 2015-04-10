@@ -3,7 +3,7 @@ package Linux::Kernel::Plugin::File;
 use warnings;
 use strict;
 
-use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
+use Getopt::Long qw(:config gnu_compat permute no_getopt_compat pass_through);
 use File::Spec::Functions qw/catfile/;
 use Linux::Kernel qw/get_available_kernels name_from_link/;
 

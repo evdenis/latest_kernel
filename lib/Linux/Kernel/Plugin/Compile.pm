@@ -3,7 +3,7 @@ package Linux::Kernel::Plugin::Compile;
 use warnings;
 use strict;
 
-use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
+use Getopt::Long qw(:config gnu_compat permute no_getopt_compat pass_through);
 use File::Spec::Functions qw/catfile/;
 use POSIX ":sys_wait_h";
 
