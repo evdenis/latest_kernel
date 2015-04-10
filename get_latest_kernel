@@ -49,17 +49,19 @@ if (exists $config{config} && ! -r $config{config}) {
 
 #only plugin configuration options in config file
 #in the form of "option=value"
+my @config_options;
 foreach (read_file($config{config})) {
    chomp;
    next
       if /\A\h*+\Z/;
    if (/\A([\w-]++)=/) {
       my $arg = "--plugin-" . $_;
-      unshift @ARGV, $arg
+      push @config_options, $arg
    } else {
       warn "Can't parse option '$_' in $config{config}. Skipping...\n"
    }
 }
+unshift @ARGV, @config_options;
 
 my $loader  = Module::Loader->new(max_depth => 1);
 my @plugins;
@@ -82,7 +84,10 @@ foreach my $p (@{$config{plugins}}) {
    } @plugins;
 
 if (@ARGV) {
-   die "Unknown command line arguments: " . join(', ', @ARGV) . "\n"
+   my @unknown_args = grep {my $a = $_; !any { $a eq $_ } @config_options} @ARGV;
+   if (@unknown_args) {
+      die "Unknown command line arguments: " . join(', ', @unknown_args) . "\n"
+   }
 }
 
 
