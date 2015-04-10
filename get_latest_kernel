@@ -125,7 +125,8 @@ if ($link && ($link ne $previous_link)) {
       } catch {
          when (/^FAIL:/) { die $_ }
          default { $last = 1 }
-      }
+      };
+
       last if $last;
    }
    $previous_link = $link
