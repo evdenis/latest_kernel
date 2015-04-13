@@ -12,8 +12,8 @@ use File::Slurp qw/read_file/;
 use POSIX qw/setsid/;
 use Getopt::Long qw(:config gnu_compat no_permute no_getopt_compat pass_through);
 use lib::abs 'lib';
-use Linux::Kernel qw/name_from_link extract_version/;
-use Linux::Kernel::Latest;
+use Linux::Kernel qw/name_from_link extract_version check_kernel_version/;
+use Linux::Kernel::Get qw/link_to_latest_kernel link_to_kernel_version/;
 use Module::Loader;
 use Try::Tiny;
 
@@ -26,9 +26,11 @@ BEGIN {
 
 my %config;
 $config{working_dir} = '.';
-$config{daemon} = 0;
+$config{daemon}  = 0;
 $config{minutes} = 10;
 $config{plugins} = [];
+$config{version} = undef;
+$config{config}  = undef;
 
 GetOptions(
    'daemon|d!'       => \$config{daemon},
@@ -36,6 +38,7 @@ GetOptions(
    'dir=s'           => \$config{working_dir},
    'load-plugins=s@' => \$config{plugins},
    'config=s'        => \$config{config},
+   'version=s'       => \$config{version},
 ) or die "Wrong command line arguments.\n";
 $config{plugins} = [ split(/,/, join(',', @{$config{plugins}})) ];
 
@@ -43,25 +46,33 @@ unless (-d $config{working_dir} && -r _ && -x _) {
    die "Can't open directory $config{working_dir}\n"
 }
 
-if (exists $config{config} && ! -r $config{config}) {
+if ($config{config} && ! -r $config{config}) {
    die "Can't read config file $config{config}\n"
 }
+
+die "Can't parse kernel version $config{version}\n"
+   if $config{version} && check_kernel_version($config{version});
+
+die "Conflicting options --daemon and explicit version specification\n"
+   if $config{version} && $config{daemon};
 
 #only plugin configuration options in config file
 #in the form of "option=value"
 my @config_options;
-foreach (read_file($config{config})) {
-   chomp;
-   next
-      if /\A\h*+\Z/;
-   if (/\A([\w-]++)=/) {
-      my $arg = "--plugin-" . $_;
-      push @config_options, $arg
-   } else {
-      warn "Can't parse option '$_' in $config{config}. Skipping...\n"
+if ($config{config}) {
+   foreach (read_file($config{config})) {
+      chomp;
+      next
+         if /\A\h*+\Z/;
+      if (/\A([\w-]++)=/) {
+         my $arg = "--plugin-" . $_;
+         push @config_options, $arg
+      } else {
+         warn "Can't parse option '$_' in $config{config}. Skipping...\n"
+      }
    }
+   unshift @ARGV, @config_options;
 }
-unshift @ARGV, @config_options;
 
 my $loader  = Module::Loader->new(max_depth => 1);
 my @plugins;
@@ -114,7 +125,7 @@ my $previous_link = '';
 my $link;
 
 CHECK:
-$link = latest_kernel($ua);
+$link = $config{version} ? link_to_kernel_version($config{version}) : link_to_latest_kernel($ua);
 if ($link && ($link ne $previous_link)) {
    my %opts = (link => $link, name => name_from_link($link), version => extract_version($link), ua => $ua);
    foreach (@plugins) {

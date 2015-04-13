@@ -5,9 +5,11 @@ use strict;
 
 use Exporter qw/import/;
 
-our @EXPORT_OK = qw/get_available_kernels name_from_link extract_version/;
+our @EXPORT_OK = qw/get_available_kernels name_from_link extract_version check_kernel_version/;
 
 use constant KERNEL_PAGE => 'https://www.kernel.org/';
+use constant KERNEL_LONGTERM_VERSIONS => 'https://www.kernel.org/pub/linux/kernel/v2.6/longterm/';
+use constant KERNEL_X_VERSIONS => 'https://www.kernel.org/pub/linux/kernel/';
 
 
 sub get_available_kernels
@@ -37,6 +39,18 @@ sub extract_version
    } else {
       undef
    }
+}
+
+sub check_kernel_version
+{
+   my @v = split /\./, $_[0];
+
+   (@v >= 2 && @v <= 4) &&
+   (
+      ($v[0] == 2 && $v[1] == 6) ||
+      ($v[0] == 3 && $v[1] >= 0 && $v[1] <= 19) ||
+      ($v[0] >= 4)
+   )
 }
 
 

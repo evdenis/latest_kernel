@@ -1,4 +1,4 @@
-package Linux::Kernel::Latest;
+package Linux::Kernel::Get;
 
 use warnings;
 use strict;
@@ -11,10 +11,10 @@ use Linux::Kernel;
 
 use Exporter qw/import/;
 
-our @EXPORT = qw/latest_kernel/;
+our @EXPORT_OK = qw/link_to_latest_kernel link_to_kernel_version/;
 
 
-sub latest_kernel
+sub link_to_latest_kernel
 {
    my ($ua) = @_;
 
@@ -27,5 +27,21 @@ sub latest_kernel
 
    Linux::Kernel::KERNEL_PAGE . $link
 }
+
+sub link_to_kernel_version
+{
+   my ($version) = @_;
+   my @v = split /\./, $version;
+   my $link;
+
+   if ($v[0] == 2) {
+      $link = Linux::Kernel::KERNEL_LONGTERM_VERSIONS . "/v$v[0].$v[1].$v[2]/linux-$version.tar.gz";
+   } else {
+      $link = Linux::Kernel::KERNEL_X_VERSIONS . "/v$v[0].x/linux-$version.tar.xz";
+   }
+
+   $link
+}
+
 
 1;
