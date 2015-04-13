@@ -17,3 +17,7 @@ nytprof.out
 /pm_to_blib
 *.o
 *.bs
+*.tar.xz
+*.tar.bz2
+*.tar.gz
+*.conf
