@@ -1,9 +1,7 @@
-requires 'File::Slurp';
-requires 'File::Spec::Functions';
-
-requires 'Mojo::UserAgent';
-requires 'Mojo::DOM';
-requires 'List::Util';
-requires 'Module::Loader';
-requires 'Try::Tiny';
 requires 'Email::Stuffer';
+requires 'File::Slurp';
+requires 'Module::Loader';
+requires 'Mojo::DOM';
+requires 'Mojo::UserAgent';
+requires 'Try::Tiny';
+requires 'lib::abs';
