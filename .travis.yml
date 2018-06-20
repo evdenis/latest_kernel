@@ -1,0 +1,19 @@
+language: perl
+sudo: false
+addons:
+  apt:
+    packages:
+      - libelf-dev
+
+cache:
+  directories:
+  - $HOME/perl5
+
+before_install:
+  cpanm --quiet --notest Devel::Cover::Report::Coveralls Devel::Cover::Report::Kritika
+
+script:
+  cover -test
+
+after_success:
+  cover -ignore_re=^/ -ignore_re=^t -report coveralls -report kritika

@@ -20,9 +20,9 @@ sub process_options
       'plugin-compile-jobs=i'   => \$jobs,
    ) or die("Error in command line arguments\n");
 
-   $config{'compile-wait'}   = $wait;
-   $config{'compile-target'} = $target;
-   $config{'compile-jobs'}   = $jobs;
+   $config->{'compile-wait'}   = $wait;
+   $config->{'compile-target'} = $target;
+   $config->{'compile-jobs'}   = $jobs;
 
    bless {wait => $wait, target => $target, jobs => $jobs}, $self;
 }
