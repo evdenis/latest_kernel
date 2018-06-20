@@ -25,20 +25,22 @@ END
    ) or die("Error in command line arguments\n");
 
    die "Option --plugin-email-from should be provided.\n"
-      unless $from;
+     unless $from;
    die "Option --plugin-email-to should be provided.\n"
-      unless $to;
+     unless $to;
 
-   bless { priority => ((@$plugins ? $plugins->[-1]->priority : 0) + 1), # dynamic priority
-           from     => $from,
-           to       => $to,
-           subj     => $subj,
-           text     => $text }, $self;
+   bless {
+      priority => ((@$plugins ? $plugins->[-1]->priority : 0) + 1),    # dynamic priority
+      from     => $from,
+      to       => $to,
+      subj     => $subj,
+      text     => $text
+   }, $self;
 }
 
 sub priority
 {
-   $_[0]->{priority}
+   $_[0]->{priority};
 }
 
 sub action
@@ -46,23 +48,18 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{file};
+     unless exists $opts->{file};
 
    my $subj = $self->{subj};
    my $text = $self->{text};
 
    foreach ($subj, $text) {
-      s/###([^#]++)###/my $k = lc($1); exists $opts->{$k} ? $opts->{$k} : ${^MATCH}/gep
+      s/###([^#]++)###/my $k = lc($1); exists $opts->{$k} ? $opts->{$k} : ${^MATCH}/gep;
    }
 
-   Email::Stuffer
-      ->text_body($text)
-      ->subject($subj)
-      ->from($self->{from})
-      ->to($self->{to})
-      ->send;
+   Email::Stuffer->text_body($text)->subject($subj)->from($self->{from})->to($self->{to})->send;
 
-   undef
+   undef;
 }
 
 1;

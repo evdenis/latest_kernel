@@ -6,7 +6,6 @@ use strict;
 use Digest::SHA qw(sha512_hex);
 use Getopt::Long qw(:config gnu_compat permute no_getopt_compat pass_through);
 
-
 sub process_options
 {
    my ($self, $config, $plugins) = @_;
@@ -24,28 +23,30 @@ END
    ) or die("Error in command line arguments\n");
 
    die "Option --plugin-sms-to should be provided.\n"
-      unless $to;
+     unless $to;
    die "Option --plugin-sms-login should be provided.\n"
-      unless $login;
+     unless $login;
    die "Option --plugin-sms-password should be provided.\n"
-      unless $password;
+     unless $password;
    die "Option --plugin-sms-api_id should be provided.\n"
-      unless $api_id;
+     unless $api_id;
 
    die "Wrong format of --plugin-sms-to option. Please use numbers only with optional + prefix\n"
-      unless $to =~ /\+?\d++/;
+     unless $to =~ /\+?\d++/;
 
-   bless { priority => ((@$plugins ? $plugins->[-1]->priority : 0) + 1), # dynamic priority
-           to       => $to,
-           login    => $login,
-           password => $password,
-           api_id   => $api_id,
-           text     => $text }, $self;
+   bless {
+      priority => ((@$plugins ? $plugins->[-1]->priority : 0) + 1),    # dynamic priority
+      to       => $to,
+      login    => $login,
+      password => $password,
+      api_id   => $api_id,
+      text     => $text
+   }, $self;
 }
 
 sub priority
 {
-   $_[0]->{priority}
+   $_[0]->{priority};
 }
 
 sub action
@@ -53,7 +54,7 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{file} && exists $opts->{ua};
+     unless exists $opts->{file} && exists $opts->{ua};
 
    my $text = $self->{text};
 
@@ -74,15 +75,15 @@ sub action
    );
 
    if (my $res = $tx->success) {
-      print "SMS: " . $res->body . "\n"
+      print "SMS: " . $res->body . "\n";
    } else {
       my $err = $tx->error;
       die "$err->{code} response: $err->{message}"
-         if $err->{code};
+        if $err->{code};
       die "Connection error: $err->{message}";
    }
 
-   undef
+   undef;
 }
 
 1;

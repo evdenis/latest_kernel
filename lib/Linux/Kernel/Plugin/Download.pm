@@ -10,41 +10,38 @@ use List::Util qw/any/;
 use File::Spec::Functions qw/catfile/;
 use Linux::Kernel qw/get_available_kernels name_from_link/;
 
-
-$ENV{MOJO_MAX_MESSAGE_SIZE} = 1073741824; # 1GB
-
+$ENV{MOJO_MAX_MESSAGE_SIZE} = 1073741824;    # 1GB
 
 sub process_options
 {
    my ($self, $config) = @_;
    my $dir;
 
-   GetOptions(
-      'plugin-download-dir=s' => \$dir,
-   ) or die("Error in command line arguments\n");
+   GetOptions('plugin-download-dir=s' => \$dir,)
+     or die("Error in command line arguments\n");
 
    unless ($dir) {
       if (exists $config->{working_dir}) {
          $dir = $config->{working_dir};
          goto CHECKED;
       } else {
-         die "Option --plugin-download-dir should be provided.\n"
+         die "Option --plugin-download-dir should be provided.\n";
       }
    }
 
    unless (-d $dir && -r _ && -x _) {
-      die "Can't access $dir.\n"
+      die "Can't access $dir.\n";
    }
 
-CHECKED:
+ CHECKED:
    $config->{'download-dir'} = $dir;
 
-   bless { dir => $dir, downloaded => get_available_kernels($dir) }, $self
+   bless {dir => $dir, downloaded => get_available_kernels($dir)}, $self;
 }
 
 sub priority
 {
-   10
+   10;
 }
 
 sub action
@@ -52,32 +49,28 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{link};
+     unless exists $opts->{link};
 
    die "FAIL: PLUGINS CONFLICT\n"
-      if exists $opts->{file};
+     if exists $opts->{file};
 
-   my $name = exists $opts->{name} ?
-                        $opts->{name} :
-                        name_from_link($opts->{link});
+   my $name =
+     exists $opts->{name}
+     ? $opts->{name}
+     : name_from_link($opts->{link});
    $opts->{name} = $name;
 
-   unless (any { $name eq $_ } @{$self->{downloaded}}) {
+   unless (any {$name eq $_} @{$self->{downloaded}}) {
       print "DOWNLOADING: $name\n";
       my $file = catfile($self->{dir}, $name);
-      $opts->{ua}->get($opts->{link})
-         ->res
-         ->content
-         ->asset
-         ->move_to($file);
+      $opts->{ua}->get($opts->{link})->res->content->asset->move_to($file);
       push @{$self->{downloaded}}, $name;
 
       $opts->{file} = $file;
       return $file;
    }
 
-   undef
+   undef;
 }
-
 
 1;

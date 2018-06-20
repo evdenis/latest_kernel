@@ -26,11 +26,11 @@ BEGIN {
 
 my %config;
 $config{working_dir} = '.';
-$config{daemon}  = 0;
-$config{minutes} = 10;
-$config{plugins} = [];
-$config{version} = undef;
-$config{config}  = undef;
+$config{daemon}      = 0;
+$config{minutes}     = 10;
+$config{plugins}     = [];
+$config{version}     = undef;
+$config{config}      = undef;
 
 GetOptions(
    'daemon|d!'       => \$config{daemon},
@@ -40,21 +40,21 @@ GetOptions(
    'config=s'        => \$config{config},
    'version=s'       => \$config{version},
 ) or die "Wrong command line arguments.\n";
-$config{plugins} = [ split(/,/, join(',', @{$config{plugins}})) ];
+$config{plugins} = [split(/,/, join(',', @{$config{plugins}}))];
 
 unless (-d $config{working_dir} && -r _ && -x _) {
-   die "Can't open directory $config{working_dir}\n"
+   die "Can't open directory $config{working_dir}\n";
 }
 
-if ($config{config} && ! -r $config{config}) {
-   die "Can't read config file $config{config}\n"
+if ($config{config} && !-r $config{config}) {
+   die "Can't read config file $config{config}\n";
 }
 
 die "Can't parse kernel version $config{version}\n"
-   if $config{version} && check_kernel_version($config{version});
+  if $config{version} && check_kernel_version($config{version});
 
 die "Conflicting options --daemon and explicit version specification\n"
-   if $config{version} && $config{daemon};
+  if $config{version} && $config{daemon};
 
 #only plugin configuration options in config file
 #in the form of "option=value"
@@ -63,18 +63,18 @@ if ($config{config}) {
    foreach (read_file($config{config})) {
       chomp;
       next
-         if /\A\h*+\Z/;
+        if /\A\h*+\Z/;
       if (/\A([\w-]++)=/) {
          my $arg = "--plugin-" . $_;
-         push @config_options, $arg
+         push @config_options, $arg;
       } else {
-         warn "Can't parse option '$_' in $config{config}. Skipping...\n"
+         warn "Can't parse option '$_' in $config{config}. Skipping...\n";
       }
    }
    unshift @ARGV, @config_options;
 }
 
-my $loader  = Module::Loader->new(max_depth => 1);
+my $loader = Module::Loader->new(max_depth => 1);
 my @plugins;
 my %pmap = map {lc(substr($_, rindex($_, ':') + 1)), $_} $loader->search('Linux::Kernel::Plugin');
 foreach my $p (@{$config{plugins}}) {
@@ -83,41 +83,41 @@ foreach my $p (@{$config{plugins}}) {
       $loader->load($pmap{$p});
       push @plugins, $pmap{$p}->process_options(\%config, \@plugins);
    } else {
-      die "There is no plugin: $p\n"
+      die "There is no plugin: $p\n";
    }
 }
 
-@plugins = sort
-   {
-      die ("Can't use plugin " . (ref $a) . " and " . (ref $b) . " combined.\n")
-         if $a->priority == $b->priority;
-      $a->priority <=> $b->priority
-   } @plugins;
+@plugins = sort {
+   die("Can't use plugin " . (ref $a) . " and " . (ref $b) . " combined.\n")
+     if $a->priority == $b->priority;
+   $a->priority <=> $b->priority
+} @plugins;
 
 if (@ARGV) {
-   my @unknown_args = grep {my $a = $_; !any { $a eq $_ } @config_options} @ARGV;
+   my @unknown_args = grep {
+      my $a = $_;
+      !any {$a eq $_} @config_options
+   } @ARGV;
    if (@unknown_args) {
-      die "Unknown command line arguments: " . join(', ', @unknown_args) . "\n"
+      die "Unknown command line arguments: " . join(', ', @unknown_args) . "\n";
    }
 }
-
 
 ### CONFIGURATION: %config
 
 if ($config{daemon}) {
    my $pid = fork();
    die "can't fork: $!"
-      unless defined $pid;
+     unless defined $pid;
    if ($pid) {
       print "$pid\n";
       exit 0;
    }
    setsid();
-   open (STDIN,  '</dev/null'); # TODO: logging
-   open (STDOUT, '>/dev/null');
-   open (STDERR, '>&STDOUT');
+   open(STDIN,  '</dev/null');    # TODO: logging
+   open(STDOUT, '>/dev/null');
+   open(STDERR, '>&STDOUT');
 }
-
 
 my $ua = Mojo::UserAgent->new(max_redirects => 3);
 
@@ -131,20 +131,20 @@ if ($link && ($link ne $previous_link)) {
    foreach (@plugins) {
       my $last = 0;
 
-      try { # TODO:
+      try {    # TODO:
          $_->action(\%opts)
       } catch {
-         when (/^FAIL:/) { die $_ }
-         default { $last = 1 }
+         when (/^FAIL:/) {die $_}
+         default {$last = 1}
       };
 
       last if $last;
    }
-   $previous_link = $link
+   $previous_link = $link;
 }
 
 if ($config{daemon}) {
    sleep $config{minutes} * 60;
-   goto CHECK
+   goto CHECK;
 }
 

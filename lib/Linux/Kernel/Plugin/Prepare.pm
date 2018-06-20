@@ -10,12 +10,12 @@ sub process_options
 {
    my ($self, $config) = @_;
 
-   bless {}, $self
+   bless {}, $self;
 }
 
 sub priority
 {
-   35
+   35;
 }
 
 sub action
@@ -23,24 +23,23 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{'kernel-dir'};
+     unless exists $opts->{'kernel-dir'};
 
    my $pid = fork();
    die "FAIL: can't fork $!"
-      unless defined $pid;
+     unless defined $pid;
 
    unless ($pid) {
       print "PREPARE: $opts->{'kernel-dir'}\n";
       chdir $opts->{'kernel-dir'};
-      open (STDIN,  '</dev/null');
-      open (STDOUT, '>/dev/null');
+      open(STDIN,  '</dev/null');
+      open(STDOUT, '>/dev/null');
       exec(qw/make modules_prepare/);
    }
 
    waitpid $pid, 0;
 
-   undef
+   undef;
 }
-
 
 1;

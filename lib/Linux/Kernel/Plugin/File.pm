@@ -7,12 +7,11 @@ use Getopt::Long qw(:config gnu_compat permute no_getopt_compat pass_through);
 use File::Spec::Functions qw/catfile/;
 use Linux::Kernel qw/get_available_kernels name_from_link/;
 
-
 sub process_options
 {
    my ($self, $config) = @_;
    my $dir;
-   my $times = 1; # 1 for once; -1 - forever
+   my $times = 1;    # 1 for once; -1 - forever
 
    GetOptions(
       'plugin-stub-dir=s'   => \$dir,
@@ -24,24 +23,24 @@ sub process_options
          $dir = $config->{working_dir};
          goto CHECKED;
       } else {
-         die "Option --plugin-stub-dir should be provided.\n"
+         die "Option --plugin-stub-dir should be provided.\n";
       }
    }
 
    unless (-d $dir && -r _ && -x _) {
-      die "Can't access $dir.\n"
+      die "Can't access $dir.\n";
    }
 
-CHECKED:
-   $config->{'stub-dir'} = $dir;
+ CHECKED:
+   $config->{'stub-dir'}   = $dir;
    $config->{'stub-times'} = $times;
 
-   bless { dir => $dir, times => $times, downloaded => get_available_kernels($dir) }, $self;
+   bless {dir => $dir, times => $times, downloaded => get_available_kernels($dir)}, $self;
 }
 
 sub priority
 {
-   10
+   10;
 }
 
 sub action
@@ -49,10 +48,10 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{link};
+     unless exists $opts->{link};
 
    die "FAIL: PLUGINS CONFLICT\n"
-      if exists $opts->{file};
+     if exists $opts->{file};
 
    my $name = name_from_link($opts->{link});
 
@@ -61,13 +60,12 @@ sub action
       if (-r $file) {
          $opts->{file} = $file;
          $self->{times}--
-            if $self->{times} > 0;
+           if $self->{times} > 0;
          return $file;
       }
    }
 
-   undef
+   undef;
 }
-
 
 1;

@@ -13,19 +13,14 @@ use Exporter qw/import/;
 
 our @EXPORT_OK = qw/link_to_latest_kernel link_to_kernel_version/;
 
-
 sub link_to_latest_kernel
 {
    my ($ua) = @_;
 
-   my $link = $ua->get(Linux::Kernel::KERNEL_PAGE)
-                 ->res
-                 ->dom
-                 ->find('#latest_link > a:nth-child(1)')
-                 ->map(attr => 'href')
-                 ->join("\n");
+   my $link = $ua->get(Linux::Kernel::KERNEL_PAGE)->res->dom->find('#latest_link > a:nth-child(1)')->map(attr => 'href')
+     ->join("\n");
 
-   Linux::Kernel::KERNEL_PAGE . $link
+   Linux::Kernel::KERNEL_PAGE . $link;
 }
 
 sub link_to_kernel_version
@@ -40,8 +35,7 @@ sub link_to_kernel_version
       $link = Linux::Kernel::KERNEL_X_VERSIONS . "/v$v[0].x/linux-$version.tar.xz";
    }
 
-   $link
+   $link;
 }
-
 
 1;

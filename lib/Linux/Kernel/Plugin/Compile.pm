@@ -10,9 +10,9 @@ use POSIX ":sys_wait_h";
 sub process_options
 {
    my ($self, $config) = @_;
-   my $wait = 1;
+   my $wait   = 1;
    my $target = '';
-   my $jobs = 3;
+   my $jobs   = 3;
 
    GetOptions(
       'plugin-compile-wait!'    => \$wait,
@@ -24,12 +24,12 @@ sub process_options
    $config{'compile-target'} = $target;
    $config{'compile-jobs'}   = $jobs;
 
-   bless { wait => $wait, target => $target, jobs => $jobs }, $self
+   bless {wait => $wait, target => $target, jobs => $jobs}, $self;
 }
 
 sub priority
 {
-   40
+   40;
 }
 
 sub action
@@ -37,21 +37,20 @@ sub action
    my ($self, $opts) = @_;
 
    return undef
-      unless exists $opts->{'kernel-dir'};
+     unless exists $opts->{'kernel-dir'};
 
    die "FAIL: PLUGINS CONFLICT\n"
-      if exists $opts->{'vmlinux'};
-
+     if exists $opts->{'vmlinux'};
 
    my $pid = fork();
    die "FAIL: can't fork $!"
-      unless defined $pid;
+     unless defined $pid;
 
    unless ($pid) {
       print "COMPILE: $opts->{'kernel-dir'}\n";
       chdir $opts->{'kernel-dir'};
-      open (STDIN,  '</dev/null');
-      open (STDOUT, '>/dev/null');
+      open(STDIN,  '</dev/null');
+      open(STDOUT, '>/dev/null');
       exec('make', '-j', $self->{jobs}, $self->{target} || ());
    }
 
@@ -61,12 +60,11 @@ sub action
       my $vmlinux = catfile $opts->{'kernel-dir'}, 'vmlinux';
       if (-e $vmlinux) {
          $opts->{'vmlinux'} = $vmlinux;
-         return $vmlinux
+         return $vmlinux;
       }
    }
 
-   undef
+   undef;
 }
-
 
 1;
