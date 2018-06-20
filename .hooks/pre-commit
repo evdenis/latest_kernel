@@ -1,0 +1,29 @@
+#!/usr/bin/env perl
+
+qx(ln -fs ../../.hooks/pre-commit .git/hooks/pre-commit);
+
+qx(find . -type f -name '*.tidybak' -delete);
+
+my @files = qx(find lib -type f -name '*.pm' -or -name '*.pl' -or -name '*.psgi' -or -name '*.t');
+push @files, qx(find .hooks -type f);
+push @files, 'get_kernel';
+
+chomp foreach @files;
+my %all_files = map {$_ => 1} @files;
+
+my @modified = qx(git diff --cached --name-only --diff-filter=ACM);
+chomp foreach @modified;
+@modified = grep {$all_files{$_}} @modified;
+
+if (@modified) {
+   qx(perltidy @modified);
+   qx(find . -type f -name '*.tidybak' -delete);
+
+   my @updated = qx(git diff --name-only --diff-filter=ACM);
+   chomp foreach @updated;
+   my %modified = map {$_ => 1} @modified;
+   my @ptmod = grep {$modified{$_}} @updated;
+   if (@ptmod) {
+      die("PerlTidy update. Can't commit.\n");
+   }
+}
